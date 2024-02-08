@@ -1,0 +1,105 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+	<link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+<div class="container">
+    <h2>
+      PetroMag
+    </h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Matricule</th>
+          <th>Nom</th>
+          {% for day in days %}
+          <th> {{day}} </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <form method="POST">
+        {% csrf_token %}
+      <tbody>
+        {% for emp_data in data %}
+        <tr>
+          <td>{{emp_data.employee.matricule}}</td>
+          <td> {{emp_data.employee}}</td>
+          {% for result in emp_data.results %}
+          {% if result %}
+          <td class="res">{{result}}</td>
+          {% else %}
+          <td>
+            <select class="form-control" name="select">
+              <option value="-">-</option>
+              <option value="T">T</option>
+              <option value="M">M</option>
+              <option value="R">R</option>
+            </select>
+          </td>
+          {% endif %}
+          
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+
+      </form>
+    </table>
+          <button type="button" id="saveBtn">Save</button>
+
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+
+$(document).ready(function() {
+    $('#saveBtn').click(function() {
+        var dataToSend = {};
+        $('select').each(function(index, element) {
+            var matricule = $(this).closest('tr').find('td:first').text();
+            var selectedOption = $(this).val();
+            var number = $(this).closest('td').index() - 1; // Get the number (column index - 1)
+            var id = parseInt(matricule);
+            if (!dataToSend[id]) {
+                dataToSend[id] = {}; // Initialize dictionary for this matricule if not already present
+            }
+            dataToSend[id][number] = selectedOption; // Set the selected option for the corresponding number
+        });
+
+        // Get CSRF token
+        var csrfToken = "{{ csrf_token }}";
+
+        // Sending data as JSON to the server with CSRF token
+        $.ajax({
+            type: 'POST',
+            url: '/',  // URL pattern associated with the test view
+            data: JSON.stringify(dataToSend),
+            contentType: 'application/json',
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            success: function(response) {
+                location.reload(true)
+                // Handle success response
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr.responseText);
+            }
+        });
+    });
+});
+
+</script>
+  
+</body>
+</html>
