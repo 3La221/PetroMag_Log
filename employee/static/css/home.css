@@ -38,6 +38,10 @@ body {
   
 
 }
+
+.resN{
+  cursor: pointer;
+}
 #saveBtn {
   position: absolute;
   top: 100px;
