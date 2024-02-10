@@ -9,7 +9,7 @@ from datetime import datetime
 def home(request):
     current_month = datetime.now().month
     today = datetime.now().day 
-    default_excel = "./excel/default.xlsx"
+    default_excel = "/home/3la2/PetroMag_Log/excel/default.xlsx"
     employees = Employee.objects.all()
     data = []
     cells = []
