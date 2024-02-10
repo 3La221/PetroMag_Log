@@ -18,8 +18,15 @@ class Employee(models.Model):
     affect_origine = models.DateField()
     sit_fam = models.CharField(max_length=1, choices=FAM_STATUS)
     nbr_enfant = models.IntegerField(null = True , blank = True )
-    
+    station = models.ForeignKey('Station', on_delete=models.CASCADE, related_name='employees',null = True)
+
     def __str__(self) -> str:
-        return f"{self.nom} {self.prenom} "
+        return f"{self.nom} {self.prenom}"
     
-    
+class Station(models.Model):
+    station_id = models.IntegerField()
+    wilaya = models.CharField(max_length=100)
+    zone = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.wilaya} - {self.zone}"

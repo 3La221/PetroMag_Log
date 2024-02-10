@@ -8,11 +8,13 @@ from datetime import datetime
 
 def home(request):
     current_month = datetime.now().month
-    today = datetime.now().day 
+    today = datetime.now().day + 1
     default_excel = "./excel/default.xlsx"
     employees = Employee.objects.all()
     data = []
     cells = []
+    if (not employees):
+        return render(request,'main/home.html', {'data':data,'days':[1,2,3,4,5,6,7,8,9,10]})
     for employee in employees:
         tmp = {}
         path=f"./excel/{employee.matricule}2024.xlsx"
@@ -76,26 +78,28 @@ def home(request):
     worbook.close()
     
     if request.method == "POST":
-        for employee in employees :
-            path=f"./excel/{employee.matricule}2024.xlsx"
-            data = json.loads(request.body.decode('utf-8'))
-
+        data = json.loads(request.body.decode('utf-8'))
+        worbook = load_workbook(path)
+        sheet = worbook.active 
+        print(data)
+        for matricule,value in data.items() :
+            print(matricule)
+            path=f"./excel/{matricule}2024.xlsx"
             worbook = load_workbook(path)
             sheet = worbook.active 
-            
-            inner_dict = data[str(employee.matricule)]
-            print(employee.matricule , inner_dict)
-            
+            inner_dict = data[matricule] 
             for index,value in inner_dict.items():
                 if value != '-':
                     print(cells[int(index)-1])
                     sheet[cells[int(index)-1]] = value
-            worbook.save(f"./excel/{employee.matricule}2024.xlsx")    
+            print("MAT = ",matricule)
+            worbook.save(f"./excel/{matricule}2024.xlsx")    
         worbook.close()
-        return render(request,'main/home.html',{'data':data,'month':current_month,'days':days})
+        
+        return render(request,'main/home.html',{'data':data,'days':days , 'today':today})
     
     
-    return render(request,'main/home.html',{'data':data,'month':current_month,'days':days})
+    return render(request,'main/home.html',{'data':data,'days':days , 'today':today})
 
 
 
